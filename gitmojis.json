@@ -1,0 +1,74 @@
+[
+  {
+    "emoji": "🎨",
+    "entity": "&#x1f3a8;",
+    "code": ":art: Style.",
+    "description": "문서 스타일 및 포맷팅, 네이밍 변경",
+    "name": "art",
+    "semver": null
+  },
+  {
+    "emoji": "🔥",
+    "entity": "&#x1f525;",
+    "code": ":fire: Del.",
+    "description": "문서나 문장을 삭제",
+    "name": "fire",
+    "semver": null
+  },
+  {
+    "emoji": "🔨",
+    "entity": "&#128296;",
+    "code": ":hammer: Fix.",
+    "description": "오타 혹은 문장을 수정",
+    "name": "hammer",
+    "semver": null
+  },
+  {
+    "emoji": "✏️",
+    "entity": "&#59161;",
+    "code": ":pencil2: Add.",
+    "description": "새로운 내용 추가",
+    "name": "pencil2",
+    "semver": "patch"
+  },
+  {
+    "emoji": "💩",
+    "entity": "&#58613;",
+    "code": ":poop: Bad.",
+    "description": "개선해야 할 작성",
+    "name": "poop",
+    "semver": null
+  },
+  {
+    "emoji": "⏪️",
+    "entity": "&#9194;",
+    "code": ":rewind: Rev.",
+    "description": "이전 작성으로 되돌림",
+    "name": "rewind",
+    "semver": "patch"
+  },
+  {
+    "emoji": "🔀",
+    "entity": "&#128256;",
+    "code": ":twisted_rightwards_arrows: Merge.",
+    "description": "브랜치 머지",
+    "name": "twisted-rightwards-arrows",
+    "semver": null
+  },
+  {
+    "emoji": "📄",
+    "entity": "&#1F4C4;",
+    "code": ":page_facing_up: Docs.",
+    "description": "한 주의 markdown문서를 시작",
+    "name": "page-facing-up",
+    "semver": null
+  },
+  {
+    "emoji": "💡",
+    "entity": "&#9855;",
+    "code": ":bulb: Upt.",
+    "description": "기존 내용을 업데이트",
+    "name": "bulb",
+    "semver": "patch"
+  }
+]
