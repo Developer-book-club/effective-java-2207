@@ -62,3 +62,17 @@
 * 생성자 대신 정적 팩터리 메서드를 써라. `Boolean(String)` =>`Boolean.valueOf(String)`
 * 생성 비용이 비싼 객체를 캐시해라. 예: 정규식 Pattern 객체
 * 오토박싱: 불필요하게 객체를 만들어 냄. 기본 타입을 대신 써라.
+
+
+## 아이템 7 다 쓴 객체 참조를 해제하라
+
+TODO
+
+## 아이템 8 finalizer와 cleaner 사용을 피하라
+
+TODO
+
+## 아이템 9 try-finally보다는 try-with-resources를 사용하라
+
+TODO
+
