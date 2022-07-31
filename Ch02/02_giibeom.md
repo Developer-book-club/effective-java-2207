@@ -1,3 +1,10 @@
+# 목차
+- [item-01. 생성자 대신 정적 팩터리 메서드를 고려하라](#item-01.-생성자-대신-정적-팩터리-메서드를-고려하라)
+- [item-02. 생성자에 매개변수가 많다면 빌더를 고려하라](#item-02-생성자에-매개변수가-많다면-빌더를-고려하라)
+- [item-03. private 생성자나 열거 타입으로 싱글턴임을 보증하라](#item-03-private-생성자나-열거-타입으로-싱글턴임을-보증하라)
+
+
+
 
 # [item-01] 생성자 대신 정적 팩터리 메서드를 고려하라
 
@@ -248,7 +255,7 @@ Driver: 서비스 제공자 인터페이스
 <br>
 
 
-# [02] 생성자에 매개변수가 많다면 빌더를 고려하라
+# [item-02] 생성자에 매개변수가 많다면 빌더를 고려하라
 
 - 정적 팩터리와 생성자는 동일하게 선택적 매개변수가 많을 때 적절히 대응하기 어렵습니다
 - 매개변수가 많을때의 생성자, 정적 팩터리의 모습을 알아봅시다
@@ -464,3 +471,158 @@ Driver: 서비스 제공자 인터페이스
 - 생성자나 정적 팩터리가 처리해야 할 매개변수가 많다면 빌더 패턴을 선택하는 것을 추천합니다
 - 특히 선택적 매개변수가 대부분이거나 매개변수끼리의 타입이 같다면 더욱 빌더 패턴을 추천합니다
 - 빌더 패턴은 점층적 생성자보다 클라이언트 코드를 읽고 쓰기가 훨씬 간결하며, 쓰레드 안전성으로부터 자바빈즈보다 훨씬 안전합니다
+
+
+<br>
+<br>
+
+# [item-03] private 생성자나 열거 타입으로 싱글턴임을 보증하라
+
+- 싱글턴이란 인스턴스를 오직 하나만 생성할 수 있는 클래스를 말합니다
+- 클래스를 싱글턴으로 만들면 이를 사용하는 클라이언트를 테스트하기가 어렵다는 단점이 있습니다
+    - 싱글턴이 인스턴스를 구현한게 아니라면 가짜(mock) 구현으로 대체할 수 없기 때문입니다
+
+<br>
+
+## 싱글턴을 만드는 방식
+
+- 싱글턴을 만드는 방식은 두가지입니다
+- 두 방식 모두 생성자는 private으로 감춰두고, 유일한 인스턴스에 접근할 수 있는 수단으로 public static 멤버를 하나 마련해 둡니다
+
+<br>
+
+### 1. final 필드 방식
+
+- public static 멤버가 final 필드인 방식입니다
+- 아래는 예제입니다
+
+    ```java
+    // 싱글턴 객체
+    
+    public class Singleton {
+    
+    // 참조변수 instance로만 접근하게 하여 하나의 인스턴스로만 공유해서 사용합니다
+        public static final Singleton instance = new Singleton();
+    
+    // Singleton 객체의 생성자는 private으로 막아놓습니다
+        private Singleton() {
+        }
+    }
+    ```
+    
+    ```java
+    public class App {
+    
+        public static void main(String[] args) {
+                    Singleton singleton1 = new Singleton(); // 컴파일 에러
+    
+                // 오로지 하나의 인스턴스로만 사용할 수 있습니다
+            Singleton singleton2 = Singleton.instance;
+        }
+    }
+    ```
+
+- 다만 권한이 있는 클라이언트에서 리플렉션 API인 AccessibleObject.setAccessible을 사용해 private 생성자를 호출할 경우 싱글턴이 뚫릴 수 있습니다
+
+<br>
+
+#### 리플렉션 API란?
+
+- 리플렉션 API는 구체적인 클래스 타입을 알지 못해도 해당 클래스의 정보(메서드, 타입, 변수 등)에 접근할 수 있게 도와주는 자바 API입니다
+- 간단하게만 예제를 작성해 보겠습니다
+
+    ```java
+    public class App {
+    
+        public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    
+    // 위 예제에서 instance 를 통한 단일 인스턴스를 얻어왔다
+            Singleton singleton1 = Singleton.instance;
+    
+            Class<?> singletonClass = Class.forName("Template.Singleton");
+            Constructor<?> constructor = singletonClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+    // 이렇게 하면 private 생성자를 호출 할 수 있다 -> 싱글턴이 깨지게 된다
+            Singleton singleton2 = (Singleton) constructor.newInstance();
+    
+    				System.out.println("singleton1 주소값: " + singleton1);
+            System.out.println("singleton2 주소값: " + singleton2);
+        }
+    }
+    
+    /*
+        [출력 결과]
+        singleton1 주소값: Template.Singleton@1554909b
+        singleton2 주소값: Template.Singleton@6bf256fa
+    */
+    ```
+
+<br>
+
+#### final 필드 방식 장점
+
+- 해당 클래스가 싱글턴임이 API에 명백히 드러납니다
+- 간결합니다
+
+<br>
+
+### static 팩터리 메서드 방식
+
+- final 방식과 다르게 유일한 인스턴스를 갖고있는 참조변수 instance를 private으로 설정합니다
+- instance를 반환하는 정적 팩터리 메서드(public static)를 선언합니다
+- 아래는 예제입니다
+
+    ```java
+    public class Singleton {
+        private static final Singleton instance = new Singleton();
+    
+        private Singleton() {
+        }
+    
+        public static Singleton getInstance() {
+            return instance;
+    			
+    // 이렇게 한다면 클라이언트 코드를 바꾸지 않고 싱글턴이 아니게 변경할 수 있습니다
+    //			return new Singleton();
+        }
+    }
+    ```
+
+<br>
+
+#### static 팩터리 메서드 방식 장점
+
+- 원한다면 API를 바꾸지 않고도 싱글턴이 아니게 변경할 수 있습니다
+    - 유일한 인스턴스를 반환하던 팩터리 메서드가 호출하는 스레드별로 다른 인스턴스를 넘겨주게 할 수 있습니다
+- 원한다면 정적 팩터리를 제네릭 싱글턴 팩터리로 만들 수 있습니다
+    - `ex) Supplier<Singleton> s2supplier = Singleton::getInstance;`
+- 정적 팩터리의 메서드 참조를 공급자로 사용할 수 있습니다
+
+<br>
+
+## 싱글턴 클래스 직렬화
+
+- 위 1, 2번 방식을 통해 싱글턴 클래스 직렬화를 하려면 단순히 Serializable 선언으로는 부족합니다
+- 모든 인스턴스 필드를 일시적이라고 선언하는 transient를 추가 (직렬화 하지 않겠다는 뜻)하고, readResolve 메서드를 제공해야 합니다
+    - 이렇게 하지 않으면 직렬화된 인스턴스를 역직렬화 할 때마다 새로운 인스턴스가 만들어집니다
+
+    ```java
+    private Object readResolve() {
+        return INSTANCE;
+    }
+    ```
+
+<br>
+
+## Enum 방식
+
+- 원소가 하나인 열거타입을 선언하는 방식
+
+    ```java
+    public enum Elvis {
+    	INSTANCE;
+    }
+    ```
+
+- 직렬화/역직렬화 상황이나 리플렉션 공격에도 제 2의 인스턴스가 생성되는 일을 완벽히 막아줍니다
+- 원소가 하나뿐인 열거 타입이 싱글턴을 만드는 가장 좋은 방법입니다
