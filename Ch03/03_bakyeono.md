@@ -117,7 +117,7 @@
 	* 대칭성(?): `sgn(x.compareTo(y)) == -sgn(y.compareTo(x))`
 	* 추이성: `(x.compareTo(y) > 0 && y.compareTo(z) > 0)` =>  `x.compareTo(z) > 0`
 	* 대칭성(?): `x.compareTo(y) == 0` => `sgn(x.compareTo(z)) == sgn(y.compareTo(z))`
-	* equals와의 관계(권장사항): ``(x.compareTo(y) == 0) == (x.equals(y))`
+	* equals와의 관계(권장사항): `(x.compareTo(y) == 0) == (x.equals(y))`
 * 비교 대상과의 타입이 다르면 보통 ClassCastException을 던지면 된다.
 * 핵심 정리: 순서를 고려해야 하는 값 클래스를 작성한다면 꼭 Comparable 인터페이스를 구현하여, 그 인스턴스들을 쉽게 정렬하고, 검색하고, 비교 기능을 제공하는 컬렉션과 어우러지도록 해야 한다. compareTo 메서드에서 필드의 값을 비교할 때 <와 > 연산자는 쓰지 말아야 한다. 그 대신 박싱된 기본 타입 클래스가 제공하는 정적 compare 메서드나 Comparator 인터페이스가 제공하는 비교자 생성 메서드를 사용하자.
 
