@@ -91,3 +91,49 @@ Object에서 final이 아닌 equals, hashCode, toString, clone, finalize는 모�
 5. 대부분의 경우 구글 AutoValue 프레임워크에서 자동 생성된걸 사용해도 무방(의미를 명확하기 위해서는 직접 구현)
 ## 아이템 13. clone 재정의는 주의해서 진행하라
 ## 아이템 14. Comparable을 구현할지 고려하라
+1. 2가지만 빼면 Object의 equals와 동일
+    * 단순 동치성 비교(equals)에 더해 순서까지 비교 가능
+    * 제네릭 인터페이스(타입 명시)
+2. Comparable을 구현했다는 것은 순서가 있다는 뜻으로 이 인터페이스를 활용하는 수많은 제네릭 알고리즘과 컬렉션에서 활용 가능(CompareTo 규약을 지키지 못하는 비교를 활용하는 클래스와 어울리지 못함)
+3. compareTo 메서드의 일반 규약은 equals의 규약과 비슷
+    * 대칭성(두 객체 참조의 순서를 바꿔 비교해도 예상한 결과가 나와야한다) : sgn(x.compareTo(y)) == -sgn(y.compareTo(x))
+    * 추이성(첫 번째가 두 번째보다 크고 두 번째가 세 번째보다 크면, 첫 번째는 세 번째보다 커야한다) : x.compare(y) > 0 && y.compare(z) > 0 이면 x.compare.(z) > 0
+    * 반사성(크기가 같은 객체들 끼리는 어떤 객체와 비교하더라도 항상 같아야한다) : x.compareTo(y) == 0이면 sgn(x.compareTo(z)) == sgn(y.compareTo(z))
+    * (x.compareTo(y) == 0) == (x.equals(y)) 여야 한다. Comparable을 구현하고 이 권고를 지키지 않는 모든 클래스는 그 사실을 명시해야 함.
+4. Comparable을 구현한 클래스를 확장해 값 컴포넌트를 추가하고 싶으면, 확장하는 대신, 독립된 클래스를 만들고, 원래 클래스의 인스턴스를 가리키는 필드를 추가하고, 해당 인스턴스를 반환하는 뷰 메서드 제공
+5. CompareTo 메서드의 작성 요령은 equals와 비슷
+    * 차이점 : 타입을 인수로 받은 제네릭 인터페이스이므로 컴파일 타임에 타입이 정해져 타입을 따로 확인하거나 형변환이 필요 없음
+    * 각 필드가 동치 임을 비교하는 것이 아니라 그 순서를 비교
+        * 객체 참조 필드 : compareTo 메서드 재귀 호출
+        * Comparable을 구현하지 않은 필드 등 : 비교자(직접 만들거나 자바에서 제공) 사용
+        * 기본 타입 비교 : 자바 7부터는 compare 사용(기존 관계 연산자 사용 비추천)
+    * 가장 핵심적인 필드부터 비교
+        ```java
+        public int compareTo(PhoneNumber pn) {
+            int result = Short.compare(areaCode, pn.areaCode);
+            if (result == 0) {
+                result = Short.compare(prefix, pn.prefix);
+                if (result == 0) {
+                    result = Short.compare(lineNum, pn.lineNum);
+                }
+            }
+            return result;
+        }
+        ```
+    * 자바 8부터는 메서드 연쇄 방식으로 비교자 생성 가능(약간의 성능 저하가 있고 자바의 숫자형 기본 타입을 모두 커버)
+        ```java
+        private static final Comparator<PhoneNumber> COMPARATOR = comparingInt((PhoneNumber pn) -> pn.areaCode)
+        .thenComparingInt(pn -> pn.prefix)
+        .thenComparingInt(pn -> pn.lineNum);
+        
+        public int compareTo(PhoneNumber pn) {
+            return COMPARATOR.compare(this, pn);
+        }
+        ```
+    * 객체 참조용 비교자 생성 메소드
+        * comparing(arg) : 키 추출자를 받아서, 키의 자연적 순서 사용
+        * comparing(arg1, arg2) : 키 추출자와 비교할 비교자 2개를 인수로 받음
+        * thenComparing(arg) : 비교자로 순서 결정
+        * thenComparing(arg) : 키 추출자를 받아서, 키의 자연적 순서 사용
+        * thenComparing(arg1, arg2) : 키 추출자와 비교할 비교자 2개를 인수로 받음
+    * 값의 차를 이용하면 정수 오버플로를 일으키거나 부동소수점 계산 방식에 따른 오류 발생 가능
