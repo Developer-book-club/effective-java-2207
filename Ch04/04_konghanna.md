@@ -184,7 +184,7 @@
 ```java
    //HashSet의 모든 기능을 정의한 Set 인터페이스를 활용해 설계
    //래퍼 클래스
-    public class InstrumentedSet<E> extends ForwardingSet<E>  {
+public class InstrumentedSet<E> extends ForwardingSet<E>  {
     private int addCount = 0;
 
     public InstrumentedSet(Set<E> s) {
@@ -226,7 +226,7 @@ public class ForwardingSet<E> implements Set<E> {
 
 ### 래퍼 클래스의 단점
 1. 콜백 프레임워크 사용 시 SELF 문제 발생 가능성
-  - 콜백 프레임워크에서는 자기 자신의 참조를 다른 객체에 넘겨서 다음 호출 때 사용하도록 하는데 내부 객체는 자신을 감싸고 있는 래퍼의 존재를 모르기 때문에 자신의 참조를 넘기고 콜백 때는 래퍼가 아닌 내부 객체를 호출하게 됨
+      - 콜백 프레임워크에서는 자기 자신의 참조를 다른 객체에 넘겨서 다음 호출 때 사용하도록 하는데 내부 객체는 자신을 감싸고 있는 래퍼의 존재를 모르기 때문에 자신의 참조를 넘기고 콜백 때는 래퍼가 아닌 내부 객체를 호출하게 됨
 
  ### 상속을 해야하는 상황
  - 상속은 하위 클래스가 상위 클래스의 진짜 하위 타입인 상황에서만 사용해야 함 : is-a 관계일 때 (구성 요소일 때)
